@@ -75,21 +75,23 @@ public class JpaAuthTransactionController {
 
 
 	@RequestMapping(value = "${jwt.login.uri}", method = RequestMethod.POST)
-	public ResponseEntity<?> login(  @RequestBody LoginRequest loginRequestDto)
+	public ResponseEntity<?> login(  @RequestBody AuthTransaction authTransaction)
 			throws MyAuthenticationException {
 
-		authenticate(loginRequestDto.getUsername(), loginRequestDto.getPassword());
-		AuthTransaction authTransaction=new AuthTransaction();
+		authenticate(authTransaction.getUsername(), authTransaction.getPassword());
+		AuthTransaction authTransaction1=new AuthTransaction();
 		//authTransaction.setStatus("pending");
-		authTransaction.setUsername(loginRequestDto.getUsername());
-		authTransaction.setPassword(loginRequestDto.getPassword());
+		authTransaction1.setUsername(authTransaction.getUsername());
+		authTransaction1.setPassword(authTransaction.getPassword());
+		authTransaction1.setTransactionAmount(authTransaction.getTransactionAmount());
+		authTransaction1.setTransactionDate(authTransaction.getTransactionDate());
 	//	authTransaction.setReason("pending");
 
 		//authentication aka puch tacha complete preparing JWT for the response, below
-		final MerchantDetails userDetails = (MerchantDetails) userDetailsService.loadUserByUsername(loginRequestDto.getUsername());
+		final MerchantDetails userDetails = (MerchantDetails) userDetailsService.loadUserByUsername(authTransaction.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		AuthTransaction createdAuthTransaction = jpaAuthTransactionRepository.save(authTransaction);
+		AuthTransaction createdAuthTransaction = jpaAuthTransactionRepository.save(authTransaction1);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant authenticated succesfully");
 		//return ResponseEntity.ok(new LoginResponse(token));
 

@@ -18,6 +18,6 @@ public interface JpaAuthTransactionRepository extends JpaRepository<AuthTransact
 
 
 	Optional<AuthTransaction> findByusername(String username);
-	
+	Optional<AuthTransaction> findBytransactionId(long transactionId);
 
 }

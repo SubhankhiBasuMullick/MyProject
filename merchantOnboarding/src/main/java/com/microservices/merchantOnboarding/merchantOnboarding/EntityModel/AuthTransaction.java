@@ -5,6 +5,7 @@ package com.microservices.merchantOnboarding.merchantOnboarding.EntityModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.Date;
 
 @Entity
 @Table(name = "AuthTransaction")
@@ -19,6 +20,10 @@ public class AuthTransaction {
 
 	@Column(name="Password")
     private String password;
+	@Column(name="TransactionAmount")
+	private double transactionAmount;
+	@Column(name="TransactionDate")
+	private Date transactionDate;
 
 	@Column(name="Status")
     private String status;
@@ -29,14 +34,18 @@ public class AuthTransaction {
     public AuthTransaction() {
     }
 
-	public AuthTransaction(Long transactionId,String username,String password,
+	public AuthTransaction(Long transactionId,String username,String password, double transactionAmount,Date transactionDate,
 						    String status,String reason) {
 		super();
 		this.transactionId = transactionId;
 		this.username=username;
 		this.password=password;
+		this.transactionAmount=transactionAmount;
+		this.transactionDate=transactionDate;
 		this.status = status;
 		this.reason=reason;
+
+
 	}
 
 	public Long getTransactionId() {
@@ -78,5 +87,21 @@ public class AuthTransaction {
 
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+
+	public double getTransactionAmount() {
+		return transactionAmount;
+	}
+
+	public void setTransactionAmount(double transactionAmount) {
+		this.transactionAmount = transactionAmount;
+	}
+
+	public Date getTransactionDate() {
+		return transactionDate;
+	}
+
+	public void setTransactionDate(Date transactionDate) {
+		this.transactionDate = transactionDate;
 	}
 }
