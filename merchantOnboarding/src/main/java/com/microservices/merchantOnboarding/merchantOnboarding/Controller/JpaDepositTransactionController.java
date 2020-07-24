@@ -18,8 +18,12 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -65,7 +69,7 @@ public class JpaDepositTransactionController {
 
 
     @RequestMapping(value = "${jwt.deposit.uri}", method = RequestMethod.POST)
-    public ResponseEntity<?> login(@RequestBody DepositTransaction depositTransaction) {
+    public ResponseEntity<?> login(  @RequestBody DepositTransaction depositTransaction) {
         try{
         AuthTransaction authTransaction = jpaAuthTransactionRepository.findByusername(depositTransaction.getUsername()).get();
        // .orElseThrow(() -> new NoSuchElementException("User not found"));
@@ -140,6 +144,16 @@ public class JpaDepositTransactionController {
 ////
 ////
 ////
-    }
+//@ResponseStatus(HttpStatus.BAD_REQUEST)
+//@ExceptionHandler(MethodArgumentNotValidException.class)
+//public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+//    Map<String, String> errors = new HashMap<>();
+//
+//    ex.getBindingResult().getFieldErrors().forEach(error ->
+//            errors.put(error.getField(), error.getDefaultMessage()));
+//
+//    return errors;
+}
+
 
 

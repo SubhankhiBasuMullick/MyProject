@@ -1,4 +1,6 @@
 package com.microservices.merchantOnboarding.merchantOnboarding.Controller;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -24,7 +26,10 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 public class JpaAuthTransactionController {
@@ -70,15 +75,15 @@ public class JpaAuthTransactionController {
 
 
 	@RequestMapping(value = "${jwt.login.uri}", method = RequestMethod.POST)
-	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequestDto)
+	public ResponseEntity<?> login(  @RequestBody LoginRequest loginRequestDto)
 			throws MyAuthenticationException {
 
 		authenticate(loginRequestDto.getUsername(), loginRequestDto.getPassword());
 		AuthTransaction authTransaction=new AuthTransaction();
-		authTransaction.setStatus("pending");
+		//authTransaction.setStatus("pending");
 		authTransaction.setUsername(loginRequestDto.getUsername());
 		authTransaction.setPassword(loginRequestDto.getPassword());
-		authTransaction.setReason("pending");
+	//	authTransaction.setReason("pending");
 
 		//authentication aka puch tacha complete preparing JWT for the response, below
 		final MerchantDetails userDetails = (MerchantDetails) userDetailsService.loadUserByUsername(loginRequestDto.getUsername());
@@ -113,6 +118,7 @@ public class JpaAuthTransactionController {
 		}
 		//return true;
 	}
+
 //	
 //	
 //

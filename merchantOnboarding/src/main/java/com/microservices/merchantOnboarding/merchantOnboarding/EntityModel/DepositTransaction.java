@@ -1,6 +1,10 @@
 package com.microservices.merchantOnboarding.merchantOnboarding.EntityModel;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import java.util.Date;
 
 @Entity
@@ -13,8 +17,12 @@ public class DepositTransaction {
     @Column(name = "Username")
     private String username;
     //private String password;
+   // @Min(value = 100,message = "Minimum deposit amount should be INR 100")
     @Column(name = "TransactionAmount")
     private double transactionAmount;
+   // @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+   // @JsonFormat(pattern = "MM/dd/yyyy")
+   // @DateTimeFormat(pattern="yyyy-MM-dd")
     @Column(name = "TransactionDate")
     private Date transactionDate;
 

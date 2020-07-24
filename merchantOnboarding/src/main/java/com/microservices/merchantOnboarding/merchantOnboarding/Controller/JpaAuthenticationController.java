@@ -1,6 +1,8 @@
 package com.microservices.merchantOnboarding.merchantOnboarding.Controller;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import javax.validation.Valid;
 
@@ -19,14 +21,9 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.JwtTokenUtil;
@@ -63,7 +60,7 @@ public class JpaAuthenticationController {
     }
 
     @PostMapping("${jwt.signup.uri}")
-    public ResponseEntity<?> signup(@RequestBody Merchant merchant)
+    public ResponseEntity<?> signup( @Valid @RequestBody Merchant merchant)
             throws MyAuthenticationException {
 
         Merchant duplicateMerchant = jpaUserRepository.findByusername(merchant.getUsername()).orElse(null);
@@ -75,13 +72,13 @@ public class JpaAuthenticationController {
                 Merchant createdUser = jpaUserRepository.save(merchant);
 //                URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
 //                .path("/{id}").buildAndExpand(createdUser.getMerchantId()).toUri();// here we are taking the current
-                return ResponseEntity.ok("user created");
+                return ResponseEntity.ok("Merchant created");
 
             } else {
                 throw new NonUniqueResultException();
             }
         } catch (NonUniqueResultException e) {
-            throw new MyAuthenticationException("Username already taken! ", e);
+            throw new MyAuthenticationException("Merchant already exists! ", e);
         }
 
 
@@ -145,6 +142,17 @@ public class JpaAuthenticationController {
         } catch (BadCredentialsException e) {
             throw new MyAuthenticationException("INVALID_CREDENTIALS", e);
         }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+
+        return errors;
     }
 }
 

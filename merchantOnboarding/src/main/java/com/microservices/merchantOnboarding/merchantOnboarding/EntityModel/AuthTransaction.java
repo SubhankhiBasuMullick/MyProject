@@ -4,6 +4,7 @@ package com.microservices.merchantOnboarding.merchantOnboarding.EntityModel;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "AuthTransaction")
@@ -13,7 +14,10 @@ public class AuthTransaction {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long transactionId;
 
+	@Column(name="Username")
     private String username;
+
+	@Column(name="Password")
     private String password;
 
 	@Column(name="Status")

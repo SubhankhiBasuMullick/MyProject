@@ -1,6 +1,10 @@
 package com.microservices.merchantOnboarding.merchantOnboarding.EntityModel;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,20 +17,30 @@ public class Merchant {
    @Id
    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long merchantId;
+	@NotEmpty(message = "Name is mandatory")
    @Column(name="Name")
     private String name;
+	@NotEmpty(message = "Username is mandatory")
    @Column(name="UserName")
     private String username;
+	@NotEmpty(message = "Password is mandatory")
    @Column(name="Password")
     private String password;
+	@NotEmpty(message = "Address is mandatory")
    @Column(name="Address")
     private String address;
+	@NotEmpty(message = "State is mandatory")
    @Column(name="State")
     private String state;
+	@NotEmpty(message = "Country is mandatory")
    @Column(name="Country")
     private String country;
+	@NotEmpty(message = "Contact number is mandatory")
+	@Pattern(regexp="(^$|[0-9]{10})",message="Mobile number is invalid")
+//	@Pattern(regexp="^\\(?(\\d{3})\\)?[- ]?(\\d{3})[- ]?(\\d{4})$",
+//			message="Mobile number is invalid")
    @Column(name="ContactNo")
-    private long contactNo;
+    private String contactNo;
    @Column(name="Role")
    private String roles;
 
@@ -35,7 +49,7 @@ public class Merchant {
 
     }
 
-    public Merchant(Long merchantId, String name, String username, String password, String address, String state, String country, long contactNo,String roles ) {
+    public Merchant(Long merchantId, String name, String username, String password, String address, String state, String country, String contactNo,String roles ) {
         this.merchantId = merchantId;
         this.name = name;
         this.username = username;
@@ -103,11 +117,11 @@ public class Merchant {
 		this.country = country;
 	}
 
-	public long getContactNo() {
+	public String getContactNo() {
 		return contactNo;
 	}
 
-	public void setContactNo(long contactNo) {
+	public void setContactNo(String contactNo) {
 		this.contactNo = contactNo;
 	}
 
