@@ -3,10 +3,12 @@ package com.microservices.merchantOnboarding.merchantOnboarding.Controller;
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.JwtTokenUtil;
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.MyAuthenticationException;
 import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.AuthTransaction;
+import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.DepositNetworkSimulator;
 import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.DepositTransaction;
 import com.microservices.merchantOnboarding.merchantOnboarding.Model.LoginRequest;
 import com.microservices.merchantOnboarding.merchantOnboarding.Model.MerchantDetails;
 import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaAuthTransactionRepository;
+import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaDepositTransactionNetworkRepository;
 import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaDepositTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,19 +48,21 @@ public class JpaDepositTransactionController {
 
     @Autowired
     private JpaDepositTransactionRepository jpaDepositTransactionRepository;
+    @Autowired
+    private JpaDepositTransactionNetworkRepository jpaDepositTransactionNetworkRepository;
 
    @RequestMapping(value = "/jpa/depositStatusUpdate/{id}", method = RequestMethod.PUT)
     public ResponseEntity<DepositTransaction> updateDepositTransaction(
             //@PathVariable String username,
-            @PathVariable(value = "id") Long depotransactionId,
-            @RequestBody DepositTransaction depoTransaction) throws ResourceNotFoundException {
+            @PathVariable(value = "id") long depositTransactionId,
+            @RequestBody DepositNetworkSimulator depositNetworkSimulator) throws ResourceNotFoundException {
 
        DepositTransaction dep =
                jpaDepositTransactionRepository
-                       .findById(depotransactionId)
-                       .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + depotransactionId));
-       dep.setStatus(depoTransaction.getStatus());
-       dep.setReason(depoTransaction.getReason());
+                       .findById(depositTransactionId)
+                       .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + depositNetworkSimulator));
+       dep.setStatus(depositNetworkSimulator.getStatus());
+       dep.setReason(depositNetworkSimulator.getReason());
        final DepositTransaction depositTransaction = jpaDepositTransactionRepository.save(dep);
        return new ResponseEntity<DepositTransaction>(depositTransaction, HttpStatus.OK);
    }

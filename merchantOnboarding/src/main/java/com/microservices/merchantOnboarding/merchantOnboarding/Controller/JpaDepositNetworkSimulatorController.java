@@ -11,13 +11,10 @@ import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaDep
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
-
+@RestController
 public class JpaDepositNetworkSimulatorController {
 
 
@@ -28,33 +25,35 @@ public class JpaDepositNetworkSimulatorController {
     private JpaDepositTransactionNetworkRepository jpaDepositTransactionNetworkRepository;
 
     @RequestMapping(value = "/jpa/depositNetworkStatusUpdate/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> login(@PathVariable(value = "id") long depotransactionId , @RequestBody DepositNetworkSimulator depositNetworkSimulator) {
-        try {
-            DepositTransaction depoTransaction = jpaDepositTransactionRepository.findBydepotransactionId(depotransactionId).get();
+    public ResponseEntity<?> depositNetwork( @PathVariable(value = "id") long depotransactionId,
+                                            @RequestBody DepositNetworkSimulator depositNetworkSimulator) {
+       try {
+            DepositTransaction depoTransaction = jpaDepositTransactionRepository
+                    .findBydepotransactionId(depotransactionId).get();
             // .orElseThrow(() -> new NoSuchElementException("User not found"));
-
-//                DepositTransaction depo = new DepositTransaction();
-//                depo.setUsername(depositTransaction.getUsername());
-//                depo.setTransactionAmount(depositTransaction.getTransactionAmount());
-//                depo.setTransactionDate(depositTransaction.getTransactionDate());
-//                final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
-//                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("No deposit merchant found", HttpStatus.NOT_FOUND);
-
-
+//
+////                DepositTransaction depo = new DepositTransaction();
+////                depo.setUsername(depositTransaction.getUsername());
+////                depo.setTransactionAmount(depositTransaction.getTransactionAmount());
+////                depo.setTransactionDate(depositTransaction.getTransactionDate());
+////                final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
+////                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
 //        } catch (NoSuchElementException e) {
-//
-//            return ResponseEntity.badRequest().body("Merchant not authorized");
-//
-//        }
+//            return new ResponseEntity<>("No deposit merchant found", HttpStatus.NOT_FOUND);
+
+
+        } catch (NoSuchElementException e) {
+
+            return ResponseEntity.badRequest().body("Merchant not authorized");
+
         }
+     //   }
         DepositNetworkSimulator dep = new DepositNetworkSimulator();
-        dep.setDepositTransactionId(depotransactionId);;
+        dep.setDepositTransactionId(depotransactionId);
         dep.setStatus(depositNetworkSimulator.getStatus());
         dep.setReason(depositNetworkSimulator.getReason());
         //depo.setTransactionDate(depositTransaction.getTransactionDate());
-        final DepositNetworkSimulator createdNetwork = jpaDepositTransactionNetworkRepository.save(dep);
+        final DepositNetworkSimulator createdNetwork1 = jpaDepositTransactionNetworkRepository.save(dep);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Network simulator updated status succesfully");
     }
 

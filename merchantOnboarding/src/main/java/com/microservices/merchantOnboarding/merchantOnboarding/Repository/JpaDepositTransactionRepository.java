@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface JpaDepositTransactionRepository extends JpaRepository<DepositTransaction, Long> {
 
 
-    Optional<DepositTransaction> findBydepotransactionId(long depotransactionId);
+   Optional <DepositTransaction> findBydepotransactionId(long depotransactionId);
 
 
 }

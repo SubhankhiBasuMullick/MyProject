@@ -8,10 +8,12 @@ import java.util.Objects;
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.JwtTokenUtil;
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.MyAuthenticationException;
 
+import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.AuthNetworkSimulator;
 import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.AuthTransaction;
 import com.microservices.merchantOnboarding.merchantOnboarding.Model.LoginRequest;
 import com.microservices.merchantOnboarding.merchantOnboarding.Model.LoginResponse;
 import com.microservices.merchantOnboarding.merchantOnboarding.Model.MerchantDetails;
+import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaAuthTransactionNetworkRepository;
 import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaAuthTransactionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,19 +52,23 @@ public class JpaAuthTransactionController {
 
 	@Autowired
 	private JpaAuthTransactionRepository jpaAuthTransactionRepository;
+	@Autowired
+	private JpaAuthTransactionNetworkRepository jpaAuthTransactionNetworkRepository;
 
 	@RequestMapping(value="/jpa/authStatusUpdate/{id}", method=RequestMethod.PUT)
 	public ResponseEntity<AuthTransaction> updateAuthTransaction(
 			//@PathVariable String username,
-			@PathVariable (value= "id") Long transactionId,
-			@RequestBody AuthTransaction authTransaction) throws ResourceNotFoundException {
+			@PathVariable (value= "id") long authTransactionId,
+			@RequestBody AuthNetworkSimulator authNetworkSimulator) throws ResourceNotFoundException {
 
 		AuthTransaction auth =
 				jpaAuthTransactionRepository
-						.findById(transactionId)
-						.orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + transactionId));
-		auth.setStatus(authTransaction.getStatus());
-		auth.setReason(authTransaction.getReason());
+						.findById(authTransactionId)
+						.orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + authTransactionId));
+//		AuthNetworkSimulator auth= jpaAuthTransactionNetworkRepository.findById(authTransactionId)
+//				.orElseThrow(()-> new ResourceNotFoundException("No merchant found on:: "+authTransactionId));
+		auth.setStatus(authNetworkSimulator.getStatus());
+		auth.setReason(authNetworkSimulator.getReason());
 		final AuthTransaction transaction = jpaAuthTransactionRepository.save(auth);
 			return new ResponseEntity<AuthTransaction>(transaction,HttpStatus.OK);
 

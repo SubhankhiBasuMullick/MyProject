@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 //@ComponentScan(basePackages = {"com.microservices.merchantOnboarding.merchantOnboarding"}
 @EntityScan("com.microservices.merchantOnboarding.merchantOnboarding.EntityModel")
 @EnableJpaRepositories(basePackageClasses ={ JpaMerchantRepository.class, JpaAuthTransactionRepository.class,
-		JpaDepositTransactionRepository.class, JpaAuthTransactionNetworkRepository.class})
+		JpaDepositTransactionRepository.class, JpaAuthTransactionNetworkRepository.class ,JpaDepositTransactionRepository.class})
 
 public class MerchantOnboardingApplication {
 

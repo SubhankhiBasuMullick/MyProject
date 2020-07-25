@@ -23,9 +23,11 @@ public class JpaAuthNetworkSimulatorController {
     private JpaAuthTransactionNetworkRepository jpaAuthTransactionNetworkRepository;
 
     @RequestMapping(value = "/jpa/authNetworkStatusUpdate/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<?> login(@PathVariable(value = "id") long authTransactionId ,@RequestBody AuthNetworkSimulator authNetworkSimulator) {
+    public ResponseEntity<?> login(@PathVariable(value = "id") long authTransactionId ,
+                                   @RequestBody AuthNetworkSimulator authNetworkSimulator) {
         try {
-            AuthTransaction authTransaction = jpaAuthTransactionRepository.findBytransactionId(authTransactionId).get();
+            AuthTransaction authTransaction = jpaAuthTransactionRepository
+                    .findBytransactionId(authTransactionId).get();
             // .orElseThrow(() -> new NoSuchElementException("User not found"));
 
 //                DepositTransaction depo = new DepositTransaction();
