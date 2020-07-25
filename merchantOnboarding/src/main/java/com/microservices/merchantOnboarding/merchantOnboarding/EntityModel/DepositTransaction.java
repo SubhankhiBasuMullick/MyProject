@@ -15,6 +15,7 @@ public class DepositTransaction {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long depotransactionId;
     @Column(name = "Username")
+   // private long authTransactionId;
     private String username;
     //private String password;
    // @Min(value = 100,message = "Minimum deposit amount should be INR 100")

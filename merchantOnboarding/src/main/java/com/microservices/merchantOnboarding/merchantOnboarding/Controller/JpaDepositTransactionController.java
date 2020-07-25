@@ -2,6 +2,7 @@ package com.microservices.merchantOnboarding.merchantOnboarding.Controller;
 
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.JwtTokenUtil;
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.MyAuthenticationException;
+import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.AuthNetworkSimulator;
 import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.AuthTransaction;
 import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.DepositNetworkSimulator;
 import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.DepositTransaction;
@@ -51,21 +52,21 @@ public class JpaDepositTransactionController {
     @Autowired
     private JpaDepositTransactionNetworkRepository jpaDepositTransactionNetworkRepository;
 
-   @RequestMapping(value = "/jpa/depositStatusUpdate/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/jpa/depositStatusUpdate/{id}", method = RequestMethod.PUT)
     public ResponseEntity<DepositTransaction> updateDepositTransaction(
             //@PathVariable String username,
             @PathVariable(value = "id") long depositTransactionId,
             @RequestBody DepositNetworkSimulator depositNetworkSimulator) throws ResourceNotFoundException {
 
-       DepositTransaction dep =
-               jpaDepositTransactionRepository
-                       .findById(depositTransactionId)
-                       .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + depositNetworkSimulator));
-       dep.setStatus(depositNetworkSimulator.getStatus());
-       dep.setReason(depositNetworkSimulator.getReason());
-       final DepositTransaction depositTransaction = jpaDepositTransactionRepository.save(dep);
-       return new ResponseEntity<DepositTransaction>(depositTransaction, HttpStatus.OK);
-   }
+        DepositTransaction dep =
+                jpaDepositTransactionRepository
+                        .findById(depositTransactionId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + depositNetworkSimulator));
+        dep.setStatus(depositNetworkSimulator.getStatus());
+        dep.setReason(depositNetworkSimulator.getReason());
+        final DepositTransaction depositTransaction = jpaDepositTransactionRepository.save(dep);
+        return new ResponseEntity<DepositTransaction>(depositTransaction, HttpStatus.OK);
+    }
 //		catch (NoSuchElementException e) {
 //			//AuthTransaction updatedAuthTransaction= jpaAuthTransactionRepository.save(authTransaction);
 //			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -73,10 +74,13 @@ public class JpaDepositTransactionController {
 
 
     @RequestMapping(value = "${jwt.deposit.uri}", method = RequestMethod.POST)
-    public ResponseEntity<?> login(  @RequestBody DepositTransaction depositTransaction) {
-        try{
-        AuthTransaction authTransaction = jpaAuthTransactionRepository.findByusername(depositTransaction.getUsername()).get();
-       // .orElseThrow(() -> new NoSuchElementException("User not found"));
+    public ResponseEntity<?> login(@RequestBody DepositTransaction depositTransaction) {
+        AuthTransaction authTransaction = new AuthTransaction();
+        try {
+            authTransaction = jpaAuthTransactionRepository.findByusername(depositTransaction.getUsername()).get();
+            // if(authTransaction.getStatus().equalsIgnoreCase("approved"))
+
+            // .orElseThrow(() -> new NoSuchElementException("User not found"));
 
 //                DepositTransaction depo = new DepositTransaction();
 //                depo.setUsername(depositTransaction.getUsername());
@@ -84,9 +88,7 @@ public class JpaDepositTransactionController {
 //                depo.setTransactionDate(depositTransaction.getTransactionDate());
 //                final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
 //                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
-            }
-        catch (NoSuchElementException e)
-        {
+        } catch (NoSuchElementException e) {
             return new ResponseEntity<>("No auth merchant found", HttpStatus.NOT_FOUND);
 
 
@@ -95,13 +97,53 @@ public class JpaDepositTransactionController {
 //            return ResponseEntity.badRequest().body("Merchant not authorized");
 //
 //        }
+        }
+        if (authTransaction.getStatus().equalsIgnoreCase("approved")) {
+            DepositTransaction depo = new DepositTransaction();
+            depo.setUsername(depositTransaction.getUsername());
+            depo.setTransactionAmount(depositTransaction.getTransactionAmount());
+            depo.setTransactionDate(depositTransaction.getTransactionDate());
+            final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
+            if (getAuthenticatedByNetworkSimulator(createdDeposit.getDepotransactionId())) {
+                DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
+                dep.setStatus("approved");
+                dep.setReason("valid");
+                DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
+
+            } else {
+                DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
+                dep.setStatus("rejected");
+                dep.setReason("invalid");
+                DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
+            }
+
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
+        } else {
+            return ResponseEntity.badRequest().body("Auth id is not valid");
+        }
     }
-        DepositTransaction depo = new DepositTransaction();
-        depo.setUsername(depositTransaction.getUsername());
-        depo.setTransactionAmount(depositTransaction.getTransactionAmount());
-        depo.setTransactionDate(depositTransaction.getTransactionDate());
-        final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
+
+//
+    // return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
+
+    private boolean getAuthenticatedByNetworkSimulator(Long depId) {
+
+        //
+
+        DepositNetworkSimulator networkSimulator = new DepositNetworkSimulator();
+        networkSimulator.setDepositTransactionId(depId);
+        if (depId % 2 == 0) {
+            networkSimulator.setStatus("approved");
+            networkSimulator.setReason("valid");
+            jpaDepositTransactionNetworkRepository.save(networkSimulator);
+            return true;
+        } else {
+            networkSimulator.setStatus("rejected");
+            networkSimulator.setReason("invalid");
+            jpaDepositTransactionNetworkRepository.save(networkSimulator);
+            return false;
+        }
+    }
 }
 
 //        authenticate(authTransaction.getUsername());
@@ -157,7 +199,7 @@ public class JpaDepositTransactionController {
 //            errors.put(error.getField(), error.getDefaultMessage()));
 //
 //    return errors;
-}
+
 
 
 

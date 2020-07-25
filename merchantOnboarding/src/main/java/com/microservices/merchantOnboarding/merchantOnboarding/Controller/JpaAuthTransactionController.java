@@ -98,7 +98,24 @@ public class JpaAuthTransactionController {
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		AuthTransaction createdAuthTransaction = jpaAuthTransactionRepository.save(authTransaction1);
-		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant authenticated succesfully");
+	//	AuthTransaction ab=jpaAuthTransactionRepository.f
+
+		if(getAuthenticatedByNetworkSimulator(createdAuthTransaction.getTransactionId()))
+		{
+			AuthTransaction auth=jpaAuthTransactionRepository.findBytransactionId(createdAuthTransaction.getTransactionId()).get();
+			auth.setStatus("approved");
+			auth.setReason("valid");
+			AuthTransaction createdAuthTransaction1 = jpaAuthTransactionRepository.save(auth);
+
+		}
+		else {
+			AuthTransaction auth=jpaAuthTransactionRepository.findBytransactionId(createdAuthTransaction.getTransactionId()).get();
+			auth.setStatus("rejected");
+			auth.setReason("invalid");
+			AuthTransaction createdAuthTransaction1 = jpaAuthTransactionRepository.save(auth);
+		}
+
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant validated and reviewed succesfully by payment processor and network simulator");
 		//return ResponseEntity.ok(new LoginResponse(token));
 
 
@@ -126,6 +143,32 @@ public class JpaAuthTransactionController {
 		}
 		//return true;
 	}
+	private boolean getAuthenticatedByNetworkSimulator(Long authId)
+	{
+
+		//
+
+		AuthNetworkSimulator networkSimulator=new AuthNetworkSimulator();
+		networkSimulator.setAuthTransactionId(authId);
+		if(authId%2==0) {
+			networkSimulator.setStatus("approved");
+			networkSimulator.setReason("valid");
+			jpaAuthTransactionNetworkRepository.save(networkSimulator);
+			return true;
+		}
+		else {
+			networkSimulator.setStatus("rejected");
+			networkSimulator.setReason("invalid");
+			jpaAuthTransactionNetworkRepository.save(networkSimulator);
+			return false;
+		}
+		//jpaAuthTransactionRepository.save(auth);
+		//jpaAuthTransactionNetworkRepository.save(networkSimulator);
+
+		//return true;
+
+	}
+
 
 //	
 //	

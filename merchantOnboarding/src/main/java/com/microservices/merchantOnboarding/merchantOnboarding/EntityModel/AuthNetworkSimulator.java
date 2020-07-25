@@ -1,3 +1,4 @@
+
 package com.microservices.merchantOnboarding.merchantOnboarding.EntityModel;
 
 import javax.persistence.*;
@@ -55,6 +56,6 @@ public class AuthNetworkSimulator {
     }
 
     public void setAuthTransactionId(long authTransactionId) {
-        this.authTransactionId = authTransactionId;
-    }
+        this.authTransactionId = authTransactionId; }
 }
+

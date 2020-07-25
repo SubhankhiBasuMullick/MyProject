@@ -1,5 +1,4 @@
 package com.microservices.merchantOnboarding.merchantOnboarding.EntityModel;
-
 import javax.persistence.*;
 
 
