@@ -25,10 +25,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 public class JpaDepositTransactionController {
@@ -75,52 +73,41 @@ public class JpaDepositTransactionController {
 
     @RequestMapping(value = "${jwt.deposit.uri}", method = RequestMethod.POST)
     public ResponseEntity<?> login(@RequestBody DepositTransaction depositTransaction) {
-        AuthTransaction authTransaction = new AuthTransaction();
+        ArrayList<AuthTransaction> authTransaction = new ArrayList<AuthTransaction>();
         try {
-            authTransaction = jpaAuthTransactionRepository.findByusername(depositTransaction.getUsername()).get();
-            // if(authTransaction.getStatus().equalsIgnoreCase("approved"))
-
-            // .orElseThrow(() -> new NoSuchElementException("User not found"));
-
-//                DepositTransaction depo = new DepositTransaction();
-//                depo.setUsername(depositTransaction.getUsername());
-//                depo.setTransactionAmount(depositTransaction.getTransactionAmount());
-//                depo.setTransactionDate(depositTransaction.getTransactionDate());
-//                final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
-//                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("No auth merchant found", HttpStatus.NOT_FOUND);
+            authTransaction = jpaAuthTransactionRepository.findByusername(depositTransaction.getUsername());
+            for (AuthTransaction authitem : authTransaction) {
 
 
-//        } catch (NoSuchElementException e) {
-//
-//            return ResponseEntity.badRequest().body("Merchant not authorized");
-//
-//        }
-        }
-        if (authTransaction.getStatus().equalsIgnoreCase("approved")) {
-            DepositTransaction depo = new DepositTransaction();
-            depo.setUsername(depositTransaction.getUsername());
-            depo.setTransactionAmount(depositTransaction.getTransactionAmount());
-            depo.setTransactionDate(depositTransaction.getTransactionDate());
-            final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
-            if (getAuthenticatedByNetworkSimulator(createdDeposit.getDepotransactionId())) {
-                DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
-                dep.setStatus("approved");
-                dep.setReason("valid");
-                DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
+                if (authitem.getStatus().equalsIgnoreCase("approved")) {
+                    DepositTransaction depo = new DepositTransaction();
+                    depo.setUsername(depositTransaction.getUsername());
+                    depo.setTransactionAmount(depositTransaction.getTransactionAmount());
+                    depo.setTransactionDate(depositTransaction.getTransactionDate());
+                    final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
+                    if (getAuthenticatedByNetworkSimulator(createdDeposit.getDepotransactionId())) {
+                        DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
+                        dep.setStatus("approved");
+                        dep.setReason("valid");
+                        DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
 
-            } else {
-                DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
-                dep.setStatus("rejected");
-                dep.setReason("invalid");
-                DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
+                    } else {
+                        DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
+                        dep.setStatus("rejected");
+                        dep.setReason("invalid");
+                        DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
+                    }
+
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
+                } else {
+                    return ResponseEntity.badRequest().body("Auth id is not valid");
+                }
             }
 
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
-        } else {
-            return ResponseEntity.badRequest().body("Auth id is not valid");
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("No auth merchant found", HttpStatus.NOT_FOUND);
         }
+
     }
 
 //
@@ -132,7 +119,8 @@ public class JpaDepositTransactionController {
 
         DepositNetworkSimulator networkSimulator = new DepositNetworkSimulator();
         networkSimulator.setDepositTransactionId(depId);
-        if (depId % 2 == 0) {
+        int int_random = ThreadLocalRandom.current().nextInt();
+        if (int_random % 2 == 0) {
             networkSimulator.setStatus("approved");
             networkSimulator.setReason("valid");
             jpaDepositTransactionNetworkRepository.save(networkSimulator);

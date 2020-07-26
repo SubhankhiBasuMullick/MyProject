@@ -1,5 +1,6 @@
 package com.microservices.merchantOnboarding.merchantOnboarding.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.AuthT
 public interface JpaAuthTransactionRepository extends JpaRepository<AuthTransaction, Long>{
 
 
-	Optional<AuthTransaction> findByusername(String username);
+	ArrayList<AuthTransaction> findByusername(String username);
 	Optional<AuthTransaction> findBytransactionId(long transactionId);
 
 }

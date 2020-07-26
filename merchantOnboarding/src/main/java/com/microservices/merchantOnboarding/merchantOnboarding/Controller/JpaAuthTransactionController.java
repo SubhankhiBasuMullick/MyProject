@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 import com.microservices.merchantOnboarding.merchantOnboarding.Component.JwtTokenUtil;
@@ -150,7 +151,9 @@ public class JpaAuthTransactionController {
 
 		AuthNetworkSimulator networkSimulator=new AuthNetworkSimulator();
 		networkSimulator.setAuthTransactionId(authId);
-		if(authId%2==0) {
+		int int_random = ThreadLocalRandom.current().nextInt();
+		System.out.println(int_random);
+		if(int_random%2==0) {
 			networkSimulator.setStatus("approved");
 			networkSimulator.setReason("valid");
 			jpaAuthTransactionNetworkRepository.save(networkSimulator);
