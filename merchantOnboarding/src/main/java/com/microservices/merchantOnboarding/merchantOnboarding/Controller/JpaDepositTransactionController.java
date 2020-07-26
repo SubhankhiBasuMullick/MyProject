@@ -72,43 +72,44 @@ public class JpaDepositTransactionController {
 
 
     @RequestMapping(value = "${jwt.deposit.uri}", method = RequestMethod.POST)
-    public ResponseEntity<?> login(@RequestBody DepositTransaction depositTransaction) {
-        ArrayList<AuthTransaction> authTransaction = new ArrayList<AuthTransaction>();
+    public ResponseEntity<?> login(@PathVariable(value = "id") long authTransactionId,@RequestBody DepositTransaction depositTransaction) {
+        AuthTransaction authTransaction = new AuthTransaction();
         try {
-            authTransaction = jpaAuthTransactionRepository.findByusername(depositTransaction.getUsername());
-            for (AuthTransaction authitem : authTransaction) {
+            authTransaction = jpaAuthTransactionRepository.findBytransactionId(authTransactionId).get();
+            // for (AuthTransaction authitem : authTransaction) {
 
 
-                if (authitem.getStatus().equalsIgnoreCase("approved")) {
-                    DepositTransaction depo = new DepositTransaction();
-                    depo.setUsername(depositTransaction.getUsername());
-                    depo.setTransactionAmount(depositTransaction.getTransactionAmount());
-                    depo.setTransactionDate(depositTransaction.getTransactionDate());
-                    final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
-                    if (getAuthenticatedByNetworkSimulator(createdDeposit.getDepotransactionId())) {
-                        DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
-                        dep.setStatus("approved");
-                        dep.setReason("valid");
-                        DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
+            if (authTransaction.getStatus().equalsIgnoreCase("approved")) {
+                DepositTransaction depo = new DepositTransaction();
+                depo.setAuthTransactionId(authTransactionId);
+                depo.setTransactionAmount(depositTransaction.getTransactionAmount());
+                depo.setTransactionDate(depositTransaction.getTransactionDate());
+                final DepositTransaction createdDeposit = jpaDepositTransactionRepository.save(depo);
+                if (getAuthenticatedByNetworkSimulator(createdDeposit.getDepotransactionId())) {
+                    DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
+                    dep.setStatus("approved");
+                    dep.setReason("valid");
+                    DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
 
-                    } else {
-                        DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
-                        dep.setStatus("rejected");
-                        dep.setReason("invalid");
-                        DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
-                    }
-
-                    return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
                 } else {
-                    return ResponseEntity.badRequest().body("Auth id is not valid");
+                    DepositTransaction dep = jpaDepositTransactionRepository.findBydepotransactionId(createdDeposit.getDepotransactionId()).get();
+                    dep.setStatus("rejected");
+                    dep.setReason("invalid");
+                    DepositTransaction createdDepoTransaction1 = jpaDepositTransactionRepository.save(dep);
                 }
-            }
 
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");
+            } else {
+                return ResponseEntity.badRequest().body("Auth id is not valid");
+            }
         } catch (NoSuchElementException e) {
+
             return new ResponseEntity<>("No auth merchant found", HttpStatus.NOT_FOUND);
         }
-
     }
+
+
+
 
 //
     // return ResponseEntity.status(HttpStatus.ACCEPTED).body("Merchant deposited succesfully");

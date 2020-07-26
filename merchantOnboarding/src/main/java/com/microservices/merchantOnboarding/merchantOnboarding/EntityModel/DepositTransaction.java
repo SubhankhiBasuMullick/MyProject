@@ -14,9 +14,9 @@ public class DepositTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long depotransactionId;
-    @Column(name = "Username")
+    @Column(name = "AuthTransactionId")
    // private long authTransactionId;
-    private String username;
+    private long authTransactionId;
     //private String password;
    // @Min(value = 100,message = "Minimum deposit amount should be INR 100")
     @Column(name = "TransactionAmount")
@@ -35,8 +35,8 @@ public class DepositTransaction {
     public DepositTransaction() {
     }
 
-    public DepositTransaction(Long depotransactionId,String username, double transactionAmount, Date transactionDate, String status, String reason) {
-       this.username=username;
+    public DepositTransaction(Long depotransactionId,long authTransactionId, double transactionAmount, Date transactionDate, String status, String reason) {
+       this.authTransactionId=authTransactionId;
         this.depotransactionId = depotransactionId;
         this.transactionAmount = transactionAmount;
         this.transactionDate = transactionDate;
@@ -84,11 +84,11 @@ public class DepositTransaction {
         this.reason = reason;
     }
 
-    public String getUsername() {
-        return username;
+    public long getAuthTransactionId() {
+        return authTransactionId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAuthTransactionId(long authTransactionId) {
+        this.authTransactionId = authTransactionId;
     }
 }

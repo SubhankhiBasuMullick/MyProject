@@ -3,6 +3,7 @@ package com.microservices.merchantOnboarding.merchantOnboarding.Controller;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import javax.validation.Valid;
 
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -35,7 +37,7 @@ import com.microservices.merchantOnboarding.merchantOnboarding.Model.MerchantDet
 import com.microservices.merchantOnboarding.merchantOnboarding.Repository.JpaMerchantRepository;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class JpaAuthenticationController {
 
     @Value("${jwt.http.request.header}")
@@ -58,6 +60,31 @@ public class JpaAuthenticationController {
     public BCryptPasswordEncoder bCryptPasswordEncoderBean() {
         return new BCryptPasswordEncoder();
     }
+
+    @PutMapping("/updateMerchantDetails/{merchantId}")
+    public ResponseEntity<Merchant> updateMerchant(@PathVariable Long merchantId, @RequestBody Merchant merchant ) throws ResourceNotFoundException
+
+    {
+
+            Merchant updatedMerchant = jpaUserRepository.findBymerchantId(merchantId)
+        .orElseThrow(() -> new ResourceNotFoundException("Merchant not found on :: " + merchantId));
+            updatedMerchant.setAddress(merchant.getAddress());
+            updatedMerchant.setContactNo(merchant.getContactNo());
+            updatedMerchant.setUsername(merchant.getUsername());
+            updatedMerchant.setCountry(merchant.getCountry());
+        String encodedPassword = bCryptPasswordEncoderBean().encode(merchant.getPassword());
+            updatedMerchant.setPassword(encodedPassword);
+            updatedMerchant.setName(merchant.getName());
+            updatedMerchant.setState(merchant.getState());
+            updatedMerchant.setRoles(merchant.getRoles());
+            final Merchant mer=jpaUserRepository.save(updatedMerchant);
+            return new ResponseEntity<Merchant>(mer,HttpStatus.OK);
+
+
+
+
+        }
+
 
     @PostMapping("${jwt.signup.uri}")
     public ResponseEntity<?> signup( @Valid @RequestBody Merchant merchant)

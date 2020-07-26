@@ -12,4 +12,5 @@ import com.microservices.merchantOnboarding.merchantOnboarding.EntityModel.Merch
 public interface JpaMerchantRepository extends JpaRepository<Merchant,Integer> {
 
     Optional<Merchant> findByusername(String username);
+    Optional<Merchant> findBymerchantId(Long merchantId);
 }
